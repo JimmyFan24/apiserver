@@ -13,6 +13,18 @@ const (
 	flagHelpShorthand = "H"
 )
 
+// addHelpFlag adds flags for a specific application to the specified FlagSet
+// object.
+//nolint: deadcode,unused,varcheck
+func addHelpCommandFlag(usage string, fs *pflag.FlagSet) {
+	fs.BoolP(
+		flagHelp,
+		flagHelpShorthand,
+		false,
+		fmt.Sprintf("Help for the %s command.", color.GreenString(strings.Split(usage, " ")[0])),
+	)
+}
+
 func helpCommand(name string) *cobra.Command {
 	return &cobra.Command{
 		Use:   "help [command]",
@@ -36,11 +48,6 @@ Simply type ` + name + ` help [path to command] for full details.`,
 // addHelpFlag adds flags for a specific application to the specified FlagSet
 // object.
 //nolint: deadcode,unused,varcheck
-func addHelpCommandFlag(usage string, fs *pflag.FlagSet) {
-	fs.BoolP(
-		flagHelp,
-		flagHelpShorthand,
-		false,
-		fmt.Sprintf("Help for the %s command.", color.GreenString(strings.Split(usage, " ")[0])),
-	)
+func addHelpFlag(name string, fs *pflag.FlagSet) {
+	fs.BoolP(flagHelp, flagHelpShorthand, false, fmt.Sprintf("Help for %s.", name))
 }

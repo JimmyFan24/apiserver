@@ -1,6 +1,7 @@
 package app
 
 import (
+	"flag"
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/marmotedu/errors"
@@ -93,11 +94,12 @@ func (a *App) buildCammand() {
 	cmd.SetOut(os.Stdout)
 	cmd.SetErr(os.Stderr)
 	cmd.Flags().SortFlags = true
-	cmd.Flags().AddFlagSet(pflag.CommandLine)
+	cmd.Flags().AddGoFlagSet(flag.CommandLine)
 	if len(a.commands) > 0 {
 		for _, command := range a.commands {
 			cmd.AddCommand(command.cobraCommand())
 		}
+		cmd.SetHelpCommand(helpCommand(a.name))
 	}
 
 	if a.runFunc != nil {
@@ -105,10 +107,13 @@ func (a *App) buildCammand() {
 	}
 	var nameFlagSets NameFlagSets
 	if a.options != nil {
+
 		nameFlagSets = a.options.Flags()
+
 		//为root command生成flagset,并且遍历赋值
 		fs := cmd.Flags()
 		for _, f := range nameFlagSets.FlagSets {
+
 			fs.AddFlagSet(f)
 		}
 
@@ -126,10 +131,10 @@ func (a *App) buildCammand() {
 		})
 	}
 	if !a.noConfig {
-		logrus.Info("no config--")
+
 		addConfigFlag(a.basename, nameFlagSets.FlagSet("global"))
 	}
-	logrus.Infof("this is all nameFlagsets:%v", nameFlagSets.Order)
+
 	a.cmd = &cmd
 }
 
@@ -163,8 +168,9 @@ func (a *App) applyOptionRules() error {
 	return nil
 }
 func (a *App) runCommand(cmd *cobra.Command, args []string) error {
-	PrintFlags(cmd.Flags())
+	//PrintFlags(cmd.Flags())
 	if a.options != nil {
+
 		if err := a.applyOptionRules(); err != nil {
 			return err
 		}
@@ -174,7 +180,7 @@ func (a *App) runCommand(cmd *cobra.Command, args []string) error {
 		return a.runFunc(a.basename)
 	}
 	if !a.noConfig {
-		logrus.Infof("binding viper config to cmd flags")
+
 		if err := viper.BindPFlags(cmd.Flags()); err != nil {
 			return err
 		}

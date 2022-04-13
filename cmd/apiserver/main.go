@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	apiserver.NewApp("APIServer").Run()
+	apiserver.NewApp("api-erver").Run()
 }

@@ -3,7 +3,6 @@ package app
 import (
 	"bytes"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	"io"
 	"strings"
@@ -14,8 +13,8 @@ type NameFlagSets struct {
 	FlagSets map[string]*pflag.FlagSet
 }
 
-func (nfs NameFlagSets) FlagSet(name string) *pflag.FlagSet {
-	logrus.Infof("name flagset adding:%v", name)
+func (nfs *NameFlagSets) FlagSet(name string) *pflag.FlagSet {
+
 	if nfs.FlagSets == nil {
 		nfs.FlagSets = map[string]*pflag.FlagSet{}
 	}
@@ -23,7 +22,7 @@ func (nfs NameFlagSets) FlagSet(name string) *pflag.FlagSet {
 		nfs.FlagSets[name] = pflag.NewFlagSet(name, pflag.ExitOnError)
 		nfs.Order = append(nfs.Order, name)
 	}
-	logrus.Infof("name flagset order:%v", nfs.Order)
+	//logrus.Infof("name flagset order:%v", nfs.Order)
 	return nfs.FlagSets[name]
 }
 

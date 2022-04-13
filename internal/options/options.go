@@ -9,7 +9,7 @@ type Options struct {
 	RedisOptions *genericoptions.RedisOptions
 }
 
-func (o Options) Flags() (fss app.NameFlagSets) {
+func (o *Options) Flags() (fss app.NameFlagSets) {
 	o.RedisOptions.AddFlags(fss.FlagSet("redis"))
 	return fss
 }
@@ -21,6 +21,7 @@ func (o *Options) Validate() []error {
 }
 
 func NewOptions() *Options {
+
 	o := Options{RedisOptions: genericoptions.NewRedisOptions()}
 	return &o
 }
