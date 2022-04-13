@@ -1,8 +1,8 @@
 package options
 
 import (
+	genericoptions "apiserver/internal/pkg/options"
 	"apiserver/pkg/app"
-	genericoptions "apiserver/pkg/options"
 )
 
 type Options struct {

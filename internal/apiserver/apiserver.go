@@ -1,9 +1,10 @@
 package apiserver
 
 import (
-	"apiserver/internal/options"
+	"apiserver/internal/apiserver/config"
+	"apiserver/internal/apiserver/options"
 	"apiserver/pkg/app"
-	"fmt"
+	"github.com/sirupsen/logrus"
 )
 
 func NewApp(basename string) *app.App {
@@ -19,8 +20,11 @@ func NewApp(basename string) *app.App {
 }
 func run(opt *options.Options) app.RunFunc {
 	return func(basename string) error {
-		fmt.Println("running...")
-		fmt.Println(opt.RedisOptions)
-		return nil
+		logrus.Info("apiserver run func...")
+		cfg, err := config.CreateConfigFromOptions(opt)
+		if err != nil {
+			return err
+		}
+		return Run(cfg)
 	}
 }
