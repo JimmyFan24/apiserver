@@ -15,5 +15,7 @@ func Run(cfg *config.Config) error {
 	return server.PrepareRun().Run()
 }
 func createApiServer(cfg *config.Config) (*apiServer, error) {
+	_, _ = buildGenericConfig(cfg)
+	logrus.Infof(cfg.RedisOptions.Host)
 	return &apiServer{}, nil
 }

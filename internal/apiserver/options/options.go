@@ -6,11 +6,13 @@ import (
 )
 
 type Options struct {
-	RedisOptions *genericoptions.RedisOptions
+	RedisOptions            *genericoptions.RedisOptions
+	GenericServerRunOptions *genericoptions.ServerRunOptions
 }
 
 func (o *Options) Flags() (fss app.NameFlagSets) {
 	o.RedisOptions.AddFlags(fss.FlagSet("redis"))
+	o.GenericServerRunOptions.AddFlags(fss.FlagSet("server"))
 	return fss
 }
 
@@ -22,7 +24,10 @@ func (o *Options) Validate() []error {
 
 func NewOptions() *Options {
 
-	o := Options{RedisOptions: genericoptions.NewRedisOptions()}
+	o := Options{
+		RedisOptions:            genericoptions.NewRedisOptions(),
+		GenericServerRunOptions: genericoptions.NewServerRunOptions()}
+
 	return &o
 }
 
