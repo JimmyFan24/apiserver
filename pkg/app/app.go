@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 	"os"
 )
 
@@ -113,23 +114,30 @@ func (a *App) buildCammand() {
 
 		usageFmt := "Usage:\n  %s\n"
 
+		cols, _, _ := TerminalSize(cmd.OutOrStdout())
 		cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
 			fmt.Fprintf(cmd.OutOrStdout(), "%s\n\n"+usageFmt, cmd.Long, cmd.UseLine())
-			//cliflag.PrintSections(cmd.OutOrStdout(), namedFlagSets, cols)
+			PrintSections(cmd.OutOrStdout(), nameFlagSets, cols)
 		})
 		cmd.SetUsageFunc(func(cmd *cobra.Command) error {
 			fmt.Fprintf(cmd.OutOrStderr(), usageFmt, cmd.UseLine())
-			//cliflag.PrintSections(cmd.OutOrStderr(), namedFlagSets, cols)
+			PrintSections(cmd.OutOrStderr(), nameFlagSets, cols)
 			return nil
 		})
 	}
-
+	if !a.noConfig {
+		logrus.Info("no config--")
+		addConfigFlag(a.basename, nameFlagSets.FlagSet("global"))
+	}
+	logrus.Infof("this is all nameFlagsets:%v", nameFlagSets.Order)
 	a.cmd = &cmd
 }
 
 // Run is used to launch the application.
 func (a *App) Run() {
+
 	if err := a.cmd.Execute(); err != nil {
+
 		fmt.Printf("%v %v\n", color.RedString("Error:"), err)
 		os.Exit(1)
 	}
@@ -155,6 +163,7 @@ func (a *App) applyOptionRules() error {
 	return nil
 }
 func (a *App) runCommand(cmd *cobra.Command, args []string) error {
+	PrintFlags(cmd.Flags())
 	if a.options != nil {
 		if err := a.applyOptionRules(); err != nil {
 			return err
@@ -164,8 +173,25 @@ func (a *App) runCommand(cmd *cobra.Command, args []string) error {
 	if a.runFunc != nil {
 		return a.runFunc(a.basename)
 	}
+	if !a.noConfig {
+		logrus.Infof("binding viper config to cmd flags")
+		if err := viper.BindPFlags(cmd.Flags()); err != nil {
+			return err
+		}
+
+		if err := viper.Unmarshal(a.options); err != nil {
+			return err
+		}
+	}
 
 	return nil
+}
+
+// PrintFlags logs the flags in the flagset.
+func PrintFlags(flags *pflag.FlagSet) {
+	flags.VisitAll(func(flag *pflag.Flag) {
+		logrus.Infof("FLAG: --%s=%q", flag.Name, flag.Value)
+	})
 }
 
 func WithOptions(opt CliOptions) OptApp {
@@ -176,6 +202,11 @@ func WithOptions(opt CliOptions) OptApp {
 func WithRunFunc(runfunc RunFunc) OptApp {
 	return func(a *App) {
 		a.runFunc = runfunc
+	}
+}
+func WithNoConfig() OptApp {
+	return func(a *App) {
+		a.noConfig = true
 	}
 }
 func WithDescription(desc string) OptApp {
