@@ -63,3 +63,26 @@ func NewConfig() *Config {
 		EnableMetrics:   true,
 	}
 }
+
+func (c *Config) Complete() CompletedConfig {
+	return CompletedConfig{c}
+}
+
+// CompletedConfig is the completed configuration for GenericAPIServer.
+type CompletedConfig struct {
+	*Config
+}
+
+func (c CompletedConfig) New() (*GenericAPIServer, error) {
+	s := &GenericAPIServer{
+		SecureServingInfo:   c.SecureServing,
+		InsecureServingInfo: c.InsecureServing,
+		mode:                c.Mode,
+		healthz:             c.Healthz,
+		enableMetrics:       c.EnableMetrics,
+		enableProfiling:     c.EnableProfiling,
+		middlewares:         c.Middlewares,
+		Engine:              gin.New(),
+	}
+	return s, nil
+}
